@@ -33,15 +33,17 @@ def search_results():
     """Search results"""
 
     item = request.form.get("search_item")
+    item = str('\'' + "%" + str(item) + "%" + '\'')
 
     try:
         i = int(request.form.get("header.id"))
-    except ValueError:
-        return render_template("error.html", message="Nothing found, please try to rephrase your query")
-    res = db.execute("SELECT * FROM books WHERE :header LIKE CONCAT('%',:item,'%')", {"header": header, "item": item}).fetchall()
+    except TypeError:
+        return render_template("error.html", message="There is no such search type")
+    rescount = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).rowcount
+    res = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).fetchall()
 
-    if res is None:
-        return render_template("error.html", message="Nothing found, please try to rephrase your query")
+    if rescount == 0:
+        return render_template("error.html", message="Nothing found, please rephrase your query")
     else:
         return render_template("search_results.html", res=res)
 @app.route("/more")

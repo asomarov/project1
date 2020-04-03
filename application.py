@@ -22,7 +22,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 headers = db.execute("SELECT * FROM columnsoftable").fetchall()
-
+headernames = ["id", "isbn", "title", "author", "year"]
 @app.route("/")
 def index():
     #headers = db.execute("SELECT * FROM books LIMIT 1").fetchone()
@@ -33,17 +33,19 @@ def search_results():
     """Search results"""
 
     item = request.form.get("search_item")
+    item = str('\'' + "%" + str(item) + "%" + '\'')
 
     try:
         i = int(request.form.get("header.id"))
-    except ValueError:
-        return render_template("error.html", message="Nothing found, please try to rephrase your query")
-    res = db.execute("SELECT * FROM books WHERE :header LIKE CONCAT('%',:item,'%')", {"header": header, "item": item}).fetchall()
+    except TypeError:
+        return render_template("error.html", message="There is no such search type")
+    #rescount = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).rowcount
+    #res = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).fetchall()
 
-    if res is None:
-        return render_template("error.html", message="Nothing found, please try to rephrase your query")
-    else:
-        return render_template("search_results.html", res=res)
+    #if rescount == 0:
+    return render_template("error.html", message=item, m=headernames[i])
+    #else:
+    #    return render_template("search_results.html", res=res)
 @app.route("/more")
 def more():
     return render_template("more.html")

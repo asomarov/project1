@@ -6,7 +6,11 @@
 
 {% block body %}
     <p>
-        {{ res }}
+      <ol>
+        {% for r in res %}
+          <li>'{{r.title}}' by {{r.author}} published in {{r.year}}</li>
+        {% endfor %}
+      </ol>
     </p>
 
     <a href="{{ url_for('index') }}">Go back</a>

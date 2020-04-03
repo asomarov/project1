@@ -22,6 +22,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 headers = db.execute("SELECT * FROM columnsoftable").fetchall()
+headernames = ["id", "isbn", "title", "author", "year"]
 
 @app.route("/")
 def index():
@@ -36,7 +37,7 @@ def search_results():
     item = str('\'' + "%" + str(item) + "%" + '\'')
 
     try:
-        i = int(request.form.get("header.id"))
+        i = int(request.form.get("search_type"))
     except TypeError:
         return render_template("error.html", message="There is no such search type")
     rescount = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).rowcount

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Search Results:
+{% endblock %}
+
+{% block body %}
+    <p>
+        {{ res }}
+    </p>
+
+    <a href="{{ url_for('index') }}">Go back</a>
+{% endblock %}

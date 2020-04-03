@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Find a book to read
+{% endblock %}
+
+{% block body %}
+    <p>
+        You don't know how to find an interesting book. You can do it right here. You can search by: ISNB number,
+        title, author and publication year.
+    </p>
+    <form class="" action="{{ url_for('search_results')}}" method="post">
+      <div class="form-group">
+        <input class="form-control" type="text" name="search_item" value="" placeholder="Enter your text here">
+      </div>
+      <div class="form-group">
+        <select class="form-control" name="search_type">
+          {% for i in headerN %}
+            <option value="{{ headers[i] }}" name="{{ i }}">{{ headers[i] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <a href="{{ url_for('more') }}">See more...</a>
+{% endblock %}

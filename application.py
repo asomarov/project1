@@ -21,12 +21,12 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-headers = db.execute("SELECT * FROM books LIMIT 1").fetchone()
-headerN = [1,2,3,4]
+headers = db.execute("SELECT * FROM columnsoftable").fetchall()
+
 @app.route("/")
 def index():
     #headers = db.execute("SELECT * FROM books LIMIT 1").fetchone()
-    return render_template("index.html", headers = headers, headerN = headerN)
+    return render_template("index.html", headers = headers)
 
 @app.route("/search_results", methods=["POST"])
 def search_results():
@@ -35,7 +35,7 @@ def search_results():
     item = request.form.get("search_item")
 
     try:
-        i = int(request.form.get("i"))
+        i = int(request.form.get("header.id"))
     except ValueError:
         return render_template("error.html", message="Nothing found, please try to rephrase your query")
     res = db.execute("SELECT * FROM books WHERE :header LIKE CONCAT('%',:item,'%')", {"header": header, "item": item}).fetchall()

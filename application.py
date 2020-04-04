@@ -74,6 +74,18 @@ def search_by_year():
     else:
         return render_template("search_by_year.html", res=res, year=year)
 
-@app.route("/more")
-def more():
-    return render_template("more.html")
+@app.route("/books")
+def books():
+    """List of all books"""
+
+    books = db.execute("SELECT * FROM books").fetchall()
+    return render_template("books.html", books=books)
+
+@app.route("/books/<int:book_id>")
+def book(book_id):
+    """Detail of a particular book"""
+    #Make sure that we have that book in our database
+    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
+    if book is None:
+        return render_template("error.html", message="There is no such book")
+    return render_template("book.html", book=book)

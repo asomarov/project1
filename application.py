@@ -26,8 +26,10 @@ headernames = ["id", "isbn", "title", "author", "year"]
 
 @app.route("/")
 def index():
-    #headers = db.execute("SELECT * FROM books LIMIT 1").fetchone()
-    return render_template("index.html", headers = headers)
+    allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall()
+    years = []
+    [years.append(item) for item in allyears if item not in years]
+    return render_template("index.html", headers = headers, years = years)
 
 @app.route("/search_results", methods=["POST"])
 def search_results():

@@ -30,7 +30,7 @@
       <div class="form-group">
         <select class="form-control" name="year">
           {% for year in years %}
-            <option value="{{ year }}" placeholder="Select publication year">{{ year }}</option>
+            <option value="{{ year.year }}" placeholder="Select publication year">{{ year.year }}</option>
           {% endfor %}
         </select>
         <button class="btn btn-primary">Search</button>

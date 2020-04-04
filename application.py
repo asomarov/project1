@@ -29,8 +29,8 @@ def index():
     allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall()
     yearsraw = []
     [yearsraw.append(item) for item in allyears if item not in yearsraw]
-    years = []
-    for year in yearsraw:
+    #years = []
+    #for year in yearsraw:
     #    year = year.replace("(","")
     #    year = year.replace(")","")
     #    year = year.replace(",","")
@@ -84,7 +84,7 @@ def search_by_year():
     if rescount == 0:
         return render_template("error.html", message="Nothing found, try another year")
     else:
-        return render_template("search_by_year.html", res=res, year = year)
+        return render_template("search_by_year.html", res=res, year=year)
 
 @app.route("/more")
 def more():

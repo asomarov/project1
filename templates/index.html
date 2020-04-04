@@ -24,15 +24,16 @@
 
     </form>
     <p>
-      Here you can choose the publication year.
+      Here you can search by publication year.
     </p>
     <form class="" action="{{ url_for('search_by_year')}}" method="post">
       <div class="form-group">
-        <select class="form-control" name="year">
+        <input class="form-control" type="text" name="year" list="years" placeholder="Enter the year">
+        <datalist id="years">
           {% for year in years %}
-            <option value="{{ year.year }}" placeholder="Select publication year">{{ year.year }}</option>
+            <option value="{{ year.year }}" >
           {% endfor %}
-        </select>
+        </datalist>
         <button class="btn btn-primary">Search</button>
       </div>
     </form>

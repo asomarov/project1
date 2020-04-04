@@ -26,16 +26,11 @@ headernames = ["id", "isbn", "title", "author", "year"]
 
 @app.route("/")
 def index():
-    allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall()
-    yearsraw = []
-    [yearsraw.append(item) for item in allyears if item not in yearsraw]
-    #years = []
-    #for year in yearsraw:
-    #    year = year.replace("(","")
-    #    year = year.replace(")","")
-    #    year = year.replace(",","")
-    #    years +=
-    return render_template("index.html", headers = headers, years = yearsraw)
+    allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall() #to get a list of all publication years
+    years = []                                                                      #an empty list
+    [years.append(item) for item in allyears if item not in years]                  #deleting duplicates
+
+    return render_template("index.html", headers = headers, years = years)
 
 @app.route("/search_results", methods=["POST"])
 def search_results():
@@ -70,13 +65,6 @@ def search_by_year():
     """Search results"""
 
     year = request.form.get("year")
-    #item = str('\'' + "%" + str(item) + "%" + '\'')
-    #item = "%" + str(item) + "%"
-
-    #try:
-    #    year = int(year)
-    #except TypeError:
-    #    return render_template("error.html", message="There is no such year")
 
     rescount = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).rowcount
     res = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).fetchall()

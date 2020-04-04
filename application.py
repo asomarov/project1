@@ -41,8 +41,14 @@ def search_results():
     except TypeError:
         return render_template("error.html", message="There is no such search type")
     rescount = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).rowcount
-    res = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).fetchall()
-
+    if i == 1:
+        res = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).fetchall()
+    elif i == 2:
+        res = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).fetchall()
+    elif i == 3:
+        res = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).fetchall()
+    else:
+        res = db.execute("SELECT * FROM books WHERE year LIKE :item", {"item": item}).fetchall()
     if rescount == 0:
         return render_template("error.html", message="Nothing found, please rephrase your query")
     else:

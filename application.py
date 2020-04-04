@@ -29,8 +29,8 @@ def index():
     allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall()
     yearsraw = []
     [yearsraw.append(item) for item in allyears if item not in yearsraw]
-    #years = []
-    #for year in yearsraw:
+    years = []
+    for year in yearsraw:
     #    year = year.replace("(","")
     #    year = year.replace(")","")
     #    year = year.replace(",","")

@@ -34,25 +34,32 @@ def search_results():
     """Search results"""
 
     item = request.form.get("search_item")
-    item = str('\'' + "%" + str(item) + "%" + '\'')
+    #item = str('\'' + "%" + str(item) + "%" + '\'')
+    item = "%" + str(item) + "%"
 
     try:
         i = int(request.form.get("search_type"))
     except TypeError:
         return render_template("error.html", message="There is no such search type")
-    rescount = db.execute("SELECT * FROM books WHERE :header LIKE :item", {"header": headernames[i], "item": item}).rowcount
+
     if i == 1:
+        rescount = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).rowcount
         res = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).fetchall()
     elif i == 2:
+        rescount = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).rowcount
         res = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).fetchall()
     elif i == 3:
+        rescount = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).rowcount
         res = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).fetchall()
     else:
+        rescount = db.execute("SELECT * FROM books WHERE year LIKE :item", {"item": item}).rowcount
         res = db.execute("SELECT * FROM books WHERE year LIKE :item", {"item": item}).fetchall()
+
     if rescount == 0:
         return render_template("error.html", message="Nothing found, please rephrase your query")
     else:
         return render_template("search_results.html", res=res)
+
 @app.route("/more")
 def more():
     return render_template("more.html")

@@ -27,9 +27,15 @@ headernames = ["id", "isbn", "title", "author", "year"]
 @app.route("/")
 def index():
     allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall()
-    years = []
-    [years.append(item) for item in allyears if item not in years]
-    return render_template("index.html", headers = headers, years = years)
+    yearsraw = []
+    [yearsraw.append(item) for item in allyears if item not in yearsraw]
+    #years = []
+    #for year in yearsraw:
+    #    year = year.replace("(","")
+    #    year = year.replace(")","")
+    #    year = year.replace(",","")
+    #    years +=
+    return render_template("index.html", headers = headers, years = yearsraw)
 
 @app.route("/search_results", methods=["POST"])
 def search_results():
@@ -53,14 +59,32 @@ def search_results():
     elif i == 3:
         rescount = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).rowcount
         res = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).fetchall()
-    else:
-        rescount = db.execute("SELECT * FROM books WHERE year LIKE :item", {"item": item}).rowcount
-        res = db.execute("SELECT * FROM books WHERE year LIKE :item", {"item": item}).fetchall()
 
     if rescount == 0:
         return render_template("error.html", message="Nothing found, please rephrase your query")
     else:
         return render_template("search_results.html", res=res)
+
+@app.route("/search_by_year", methods=["POST"])
+def search_by_year():
+    """Search results"""
+
+    year = request.form.get("year")
+    #item = str('\'' + "%" + str(item) + "%" + '\'')
+    #item = "%" + str(item) + "%"
+
+    #try:
+    #    year = int(year)
+    #except TypeError:
+    #    return render_template("error.html", message="There is no such year")
+
+    rescount = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).rowcount
+    res = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).fetchall()
+
+    if rescount == 0:
+        return render_template("error.html", message="Nothing found, try another year")
+    else:
+        return render_template("search_by_year.html", res=res, year = year)
 
 @app.route("/more")
 def more():

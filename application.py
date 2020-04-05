@@ -1,4 +1,6 @@
 import os
+import requests
+import json
 
 from flask import Flask, session
 from flask_session import Session
@@ -88,4 +90,26 @@ def book(book_id):
     book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
     if book is None:
         return render_template("error.html", message="There is no such book")
-    return render_template("book.html", book=book)
+
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
+    if res.status_code != 200:
+      raise Exception("ERROR: API request unsuccessful.")
+    data = res.json()
+    rating = data["books"][0]["average_rating"]
+    ratingcount = data["books"][0]["work_ratings_count"]
+    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount)
+    #{'books':
+    #    [
+    #        {'id': 6969,
+    #        'isbn': '0141439580',
+    #        'isbn13': '9780141439587',
+    #        'ratings_count': 555737,
+    #        'reviews_count': 948690,
+    #        'text_reviews_count': 11476,
+    #        'work_ratings_count': 607250,
+    #        'work_reviews_count': 1063555,
+    #        'work_text_reviews_count': 16017,
+    #        'average_rating': '4.00'}
+    #    ]
+
+    #}

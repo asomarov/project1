@@ -11,7 +11,7 @@
     </p>
     <form class="" action="{{ url_for('search_results')}}" method="post">
       <div class="form-group">
-        <input class="form-control" type="text" name="search_item" value="" placeholder="Enter your text here">
+        <input class="form-control" type="text" name="search_item" value="" placeholder="Enter your search here">
       </div>
       <div class="form-group">
         <select class="form-control" name="search_type">
@@ -28,7 +28,7 @@
     </p>
     <form class="" action="{{ url_for('search_by_year')}}" method="post">
       <div class="form-group">
-        <input class="form-control" type="text" name="year" list="years" placeholder="Enter the year">
+        <input class="form-control" type="text" name="year" list="years" placeholder="Enter or choose a year from a drop-down">
         <datalist id="years">
           {% for year in years %}
             <option value="{{ year.year }}" >

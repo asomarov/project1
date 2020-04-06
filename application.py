@@ -98,18 +98,30 @@ def book(book_id):
     rating = data["books"][0]["average_rating"]
     ratingcount = data["books"][0]["work_ratings_count"]
     return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount)
-    #{'books':
-    #    [
-    #        {'id': 6969,
-    #        'isbn': '0141439580',
-    #        'isbn13': '9780141439587',
-    #        'ratings_count': 555737,
-    #        'reviews_count': 948690,
-    #        'text_reviews_count': 11476,
-    #        'work_ratings_count': 607250,
-    #        'work_reviews_count': 1063555,
-    #        'work_text_reviews_count': 16017,
-    #        'average_rating': '4.00'}
-    #    ]
 
-    #}
+@app.route("/registration_form")
+def registration_form():
+    return render_template("registration_form.html")
+
+@app.route("/register", methods=["POST"])
+def register():
+    """Registration form"""
+    name = request.form.get("name")
+    email = request.form.get("email")
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone
+    if name is None:
+        return render_template("error.html", message="Enter your name")
+    elif username is None:
+        return render_template("error.html", message="Enter your username")
+    elif password is None:
+        return render_template("error.html", message="Enter your password")
+    elif username == u:
+        return render_template("error.html", message="This username has already been chosen, select another username")
+
+    db.execute("INSERT INTO users (name, email, username, password) VALUES(:name, :email, :username, :password)",
+                                {"name": name, "email": email, "username": username, "password": password})
+    db.commit()
+    return render_template("registration_success.html", message="You have successfully registered")

@@ -111,15 +111,15 @@ def register():
     username = request.form.get("username")
     password = request.form.get("password")
 
-    u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone
-    if name is None:
-        return render_template("error.html", message="Enter your name")
-    elif username is None:
-        return render_template("error.html", message="Enter your username")
-    elif password is None:
-        return render_template("error.html", message="Enter your password")
-    elif username == u:
-        return render_template("error.html", message="This username has already been chosen, select another username")
+    u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone()
+    if name is "":
+        return render_template("registration_error.html", message="Enter your name")
+    elif username is "":
+        return render_template("registration_error.html", message="Enter your username")
+    elif password is "":
+        return render_template("registration_error.html", message="Enter your password")
+    elif not u is None:
+        return render_template("registration_error.html", message="This username has already been chosen, select another username")
 
     db.execute("INSERT INTO users (name, email, username, password) VALUES(:name, :email, :username, :password)",
                                 {"name": name, "email": email, "username": username, "password": password})

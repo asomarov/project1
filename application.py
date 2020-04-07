@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import random
 
 from flask import Flask, session
 from flask_session import Session
@@ -110,6 +111,7 @@ def register():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
+    username_id = str(random.random())
 
     u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone()
     if name is "":
@@ -121,8 +123,8 @@ def register():
     elif not u is None:
         return render_template("registration_error.html", message="This username has already been chosen, select another username")
 
-    db.execute("INSERT INTO users (name, email, username, password) VALUES(:name, :email, :username, :password)",
-                                {"name": name, "email": email, "username": username, "password": password})
+    db.execute("INSERT INTO users (name, email, username, password, username_id) VALUES(:name, :email, :username, :password, :username_id)",
+                                {"name": name, "email": email, "username": username, "password": password, "username_id": username_id})
     db.commit()
     return render_template("registration_success.html", message="You have successfully registered")
 
@@ -139,13 +141,13 @@ def sign_in():
     user = db.execute("SELECT * FROM users WHERE username = :username AND password = :password",
                                         {"username": username, "password": password}).fetchone()
     if not user is None:
-        return render_template("signin.html", headers = headers, years = years, user=username)
+        return render_template("signin.html", headers = headers, years = years, username=username, username_id=user.username_id)
     else:
         return render_template("error.html", message="Your username or password is incorrect")
 
-@app.route("/<string:username>")
-def username(username):
-    user = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()
+@app.route("/<string:username_id>")
+def username(username_id):
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
     reviews = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).fetchall()
     revcount = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).rowcount
     books = db.execute("SELECT * FROM books").fetchall()

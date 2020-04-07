@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  Registration successful
+{% endblock %}
+
+{% block body %}
+  <p> {{ message }}</p>
+
+  <a href="{{ url_for('index') }}">Go home</a>
+{% endblock %}

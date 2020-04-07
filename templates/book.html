@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Title of the book: {{ book.title }}
+{% endblock %}
+
+{% block body %}
+    <p>
+      <ul>
+          <li>Author of the book: {{ book.author }}</li>
+          <li>Title of the book: {{ book.title }}</li>
+          <li>Published in {{ book.year }}</li>
+          <li>ISBN: {{ book.isbn }}</li>
+      </ul>
+    </p>
+    <p>
+      Average Goodreads rating: {{ rating }}.
+    </p>
+    <p> Number of ratings received in Goodreads: {{ ratingcount }} </p>
+    <a href="{{ url_for('index') }}">Go back</a>
+{% endblock %}

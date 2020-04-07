@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Registration
+{% endblock %}
+
+{% block body %}
+    <p>
+      Sign up so that you can add your own review
+    </p>
+      <form class="" action="{{ url_for('register') }}" method="post">
+        <div class="form-group">
+          <input class="form-control" type="text" name="name" placeholder="Enter your name">
+          <input class="form-control" type="email" name="email" placeholder="Enter your email">
+          <input class="form-control" type="text" name="username" placeholder="Enter your username">
+          <input class="form-control" type="password" name="password" placeholder="Enter your password">
+          <button class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+
+
+    <a href="{{ url_for('index') }}">Go back</a>
+{% endblock %}

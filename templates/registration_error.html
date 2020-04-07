@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Error
+{% endblock %}
+
+{% block body %}
+    <p>
+        {{ message }}
+    </p>
+
+    <a href="{{ url_for('registration_form') }}">Go back</a>
+{% endblock %}

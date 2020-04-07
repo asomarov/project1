@@ -85,7 +85,7 @@ def books():
 
 @app.route("/books/<int:book_id>")
 def book(book_id):
-    """Detail of a particular book"""
+    """Details of a particular book"""
     #Make sure that we have that book in our database
     book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
     if book is None:
@@ -125,3 +125,33 @@ def register():
                                 {"name": name, "email": email, "username": username, "password": password})
     db.commit()
     return render_template("registration_success.html", message="You have successfully registered")
+
+@app.route("/sign_in", methods=["POST"])
+def sign_in():
+    username = request.form.get("regusername")
+    password = request.form.get("regpassword")
+
+    headers = db.execute("SELECT * FROM columnsoftable").fetchall()
+    allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall() #to get a list of all publication years
+    years = []                                                                      #an empty list
+    [years.append(item) for item in allyears if item not in years]                  #deleting duplicates
+
+    user = db.execute("SELECT * FROM users WHERE username = :username AND password = :password",
+                                        {"username": username, "password": password}).fetchone()
+    if not user is None:
+        return render_template("signin.html", headers = headers, years = years, user=username)
+    else:
+        return render_template("error.html", message="Your username or password is incorrect")
+
+@app.route("/<string:username>")
+def username(username):
+    user = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()
+    reviews = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).fetchall()
+    revcount = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).rowcount
+    books = db.execute("SELECT * FROM books").fetchall()
+
+    if revcount == 0:
+        message = "You haven't made any reviews"
+    else:
+        message = "Your reviews:"
+    return render_template("username.html", reviews = reviews, message = message, user = user.name, books = books)

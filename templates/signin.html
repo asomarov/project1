@@ -6,6 +6,9 @@
 
 {% block body %}
     <p>
+      You have signed in as <a href="{{ url_for('username', username=user)}} ">{{ user }}</a>
+    </p>
+    <p>
         You don't know how to find an interesting book. You can do it right here. You can search by: ISNB number,
         title, author and publication year.
     </p>
@@ -39,23 +42,4 @@
     </form>
     <a href="{{ url_for('books') }}">List of all books...</a>
 
-    <p>
-      <a href="{{ url_for('registration_form') }}">Sign up so that you can add a review and put a mark for a book</a>
-    </p>
-    <p>
-      <a class="btn btn-primary" data-toggle="collapse" href="#signin" role="button" aria-expanded="false" aria-controls="collapseExample">
-        Sign in
-      </a>
-    </p>
-    <div class="collapse" id="signin">
-      <div class="card card-body">
-        <form class="" action="{{ url_for('sign_in') }}" method="post">
-          <div class="form-group">
-            <input class="form-control" type="text" name="regusername" placeholder="Enter your username">
-            <input class="form-control" type="password" name="regpassword" placeholder="Enter your password">
-            <button class="btn btn-primary">Submit</button>
-          </div>
-        </form>
-      </div>
-    </div>
 {% endblock %}

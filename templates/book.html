@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block body %}
+<p>
+  You have signed in as <a href="{{ url_for('username', username_id=username_id)}} ">{{ username }}</a>.
+  <a href="{{ url_for('index') }}">Sign out</a>
+</p>
+
     <p>
       <ul>
           <li>Author of the book: {{ book.author }}</li>
@@ -17,5 +22,5 @@
       Average Goodreads rating: {{ rating }}.
     </p>
     <p> Number of ratings received in Goodreads: {{ ratingcount }} </p>
-    <a href="{{ url_for('index') }}">Go back</a>
+    <a href="{{ url_for('sign_in') }}">Go back</a>
 {% endblock %}

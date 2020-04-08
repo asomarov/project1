@@ -1,0 +1,44 @@
+html {
+  padding: 10px;
+}
+  .layer {
+    background:
+    border: 2px solid black
+    padding: 20px
+  }
+@media (min-width: 700px) {
+  .grid {
+      background-color: lightyellow;
+      display: grid;
+      padding: 20px;
+      grid-column-gap: 20px;
+      grid-row-gap: 10px;
+      grid-template-columns: auto auto;
+  }
+  .grid-item {
+      background-color: white;
+      font-size: 20px;
+      padding: 10px;
+      text-align: left;
+  }
+}
+
+@media (max-width: 699px) {
+  .grid {
+      display: flex;
+      flex-wrap: wrap;
+      background-color: lightyellow;
+  }
+
+  .grid-item {
+      background-color: lightyellow;
+      font-size: 20px;
+      margin: 5px;
+      padding: 5px;
+      width: 400px;
+  }
+}
+
+  .button {
+    color:red;font-weight:bold
+  }

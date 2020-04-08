@@ -6,40 +6,48 @@
 
 {% block body %}
     <p>
-      You have signed in as <a href="{{ url_for('username', username_id=username_id)}} ">{{ username }}</a>
+      You have signed in as <a href="{{ url_for('username', username_id=username_id)}} ">{{ username }}</a>.
+      <a href="{{ url_for('index') }}">Sign out</a>
     </p>
     <p>
-        You don't know how to find an interesting book. You can do it right here. You can search by: ISNB number,
-        title, author and publication year.
+      You don't know how to find an interesting book. You can do it right here. You can search by: ISNB number,
+      title, author and publication year.
     </p>
-    <form class="" action="{{ url_for('search_results')}}" method="post">
-      <div class="form-group">
-        <input class="form-control" type="text" name="search_item" value="" placeholder="Enter your search here">
+    <div class="container">
+      <div class="row">
+      <div class="col">
+        <form class="" action="{{ url_for('search_results', username_id=username_id)}}" method="post">
+          <div class="form-group">
+            <input class="form-control" type="text" name="search_item" value="" placeholder="Enter your search here">
+          </div>
+          <div class="form-group">
+            <select class="form-control" name="search_type">
+              {% for header in headers[:3] %}
+                <option value="{{ header.id }}" >{{ header.column.upper() }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-primary">Search</button>
+          </div>
+        </form>
       </div>
-      <div class="form-group">
-        <select class="form-control" name="search_type">
-          {% for header in headers[:3] %}
-            <option value="{{ header.id }}" >{{ header.column.upper() }}</option>
-          {% endfor %}
-        </select>
-        <button class="btn btn-primary">Search</button>
+      <div class="col">
+        <p>
+          Here you can search by publication year.
+        </p>
+        <form class="" action="{{ url_for('search_by_year', username_id=username_id)}}" method="post">
+          <div class="form-group">
+            <input class="form-control" type="text" name="year" list="years" placeholder="Enter or choose a year from a drop-down">
+            <datalist id="years">
+              {% for year in years %}
+                <option value="{{ year.year }}" >
+              {% endfor %}
+            </datalist>
+            <button class="btn btn-primary">Search</button>
+          </div>
+        </form>
       </div>
-    </form>
-
-    <p>
-      Here you can search by publication year.
-    </p>
-    <form class="" action="{{ url_for('search_by_year')}}" method="post">
-      <div class="form-group">
-        <input class="form-control" type="text" name="year" list="years" placeholder="Enter or choose a year from a drop-down">
-        <datalist id="years">
-          {% for year in years %}
-            <option value="{{ year.year }}" >
-          {% endfor %}
-        </datalist>
-        <button class="btn btn-primary">Search</button>
-      </div>
-    </form>
-    <a href="{{ url_for('books') }}">List of all books...</a>
+    </div>
+    </div>
+    <a href="{{ url_for('books', username_id=username_id) }}">List of all books...</a>
 
 {% endblock %}

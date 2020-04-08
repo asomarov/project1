@@ -5,10 +5,14 @@
 {% endblock %}
 
 {% block body %}
-    <p>
+    <p class="layer">
         You don't know how to find an interesting book. You can do it right here. You can search by: ISNB number,
-        title, author and publication year. But first you need to sign in.
-        <p>
+        title, author and publication year.
+    </p>
+    <p>
+      But first you need to sign in.
+    </p>
+    <p>
       <a href="{{ url_for('registration_form') }}">If you are new to our website please
         sign up so that you can add a review and put a mark for a book</a>
     </p>

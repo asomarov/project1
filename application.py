@@ -29,76 +29,8 @@ headernames = ["id", "isbn", "title", "author", "year"]
 
 @app.route("/")
 def index():
-    allyears = db.execute("SELECT year FROM books ORDER BY year ASC").fetchall() #to get a list of all publication years
-    years = []                                                                      #an empty list
-    [years.append(item) for item in allyears if item not in years]                  #deleting duplicates
 
-    return render_template("index.html", headers = headers, years = years)
-
-@app.route("/search_results", methods=["POST"])
-def search_results():
-    """Search results"""
-
-    item = request.form.get("search_item")
-    #item = str('\'' + "%" + str(item) + "%" + '\'')
-    item = "%" + str(item) + "%"
-
-    try:
-        i = int(request.form.get("search_type"))
-    except TypeError:
-        return render_template("error.html", message="There is no such search type")
-
-    if i == 1:
-        rescount = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).rowcount
-        res = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).fetchall()
-    elif i == 2:
-        rescount = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).rowcount
-        res = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).fetchall()
-    elif i == 3:
-        rescount = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).rowcount
-        res = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).fetchall()
-
-    if rescount == 0:
-        return render_template("error.html", message="Nothing found, please rephrase your query")
-    else:
-        return render_template("search_results.html", res=res)
-
-@app.route("/search_by_year", methods=["POST"])
-def search_by_year():
-    """Search results"""
-
-    year = request.form.get("year")
-
-    rescount = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).rowcount
-    res = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).fetchall()
-
-    if rescount == 0:
-        return render_template("error.html", message="Nothing found, try another year")
-    else:
-        return render_template("search_by_year.html", res=res, year=year)
-
-@app.route("/books")
-def books():
-    """List of all books"""
-
-    books = db.execute("SELECT * FROM books").fetchall()
-    return render_template("books.html", books=books)
-
-@app.route("/books/<int:book_id>")
-def book(book_id):
-    """Details of a particular book"""
-    #Make sure that we have that book in our database
-    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
-    if book is None:
-        return render_template("error.html", message="There is no such book")
-
-    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
-    if res.status_code != 200:
-      raise Exception("ERROR: API request unsuccessful.")
-    data = res.json()
-    rating = data["books"][0]["average_rating"]
-    ratingcount = data["books"][0]["work_ratings_count"]
-    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount)
+    return render_template("index.html")
 
 @app.route("/registration_form")
 def registration_form():
@@ -114,11 +46,11 @@ def register():
     username_id = str(random.random())                              #This will allow to use it as a route to a particular user
 
     u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone()
-    if name is "":
+    if name == "":
         return render_template("registration_error.html", message="Enter your name")
-    elif username is "":
+    elif username == "":
         return render_template("registration_error.html", message="Enter your username")
-    elif password is "":
+    elif password == "":
         return render_template("registration_error.html", message="Enter your password")
     elif not u is None:
         return render_template("registration_error.html", message="This username has already been chosen, select another username")
@@ -156,4 +88,71 @@ def username(username_id):
         message = "You haven't made any reviews"
     else:
         message = "Your reviews:"
-    return render_template("username.html", reviews = reviews, message = message, user = user.name, books = books)
+    return render_template("username.html", reviews = reviews, message = message, username = user.name, books = books)
+
+@app.route("/search_results/<string:username_id>", methods=["POST"])
+def search_results(username_id):
+    """Search results"""
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+    item = request.form.get("search_item")
+    #item = str('\'' + "%" + str(item) + "%" + '\'')
+    item = "%" + str(item) + "%"
+
+    try:
+        i = int(request.form.get("search_type"))
+    except TypeError:
+        return render_template("error.html", message="There is no such search type")
+
+    if i == 1:
+        rescount = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).rowcount
+        res = db.execute("SELECT * FROM books WHERE isbn LIKE :item", {"item": item}).fetchall()
+    elif i == 2:
+        rescount = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).rowcount
+        res = db.execute("SELECT * FROM books WHERE title LIKE :item", {"item": item}).fetchall()
+    elif i == 3:
+        rescount = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).rowcount
+        res = db.execute("SELECT * FROM books WHERE author LIKE :item", {"item": item}).fetchall()
+
+    if rescount == 0:
+        return render_template("error.html", message="Nothing found, please rephrase your query")
+    else:
+        return render_template("search_results.html", res=res, username=user.username, username_id=username_id)
+
+@app.route("/search_by_year/<string:username_id>", methods=["POST"])
+def search_by_year(username_id):
+    """Search results"""
+
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+    year = request.form.get("year")
+
+    rescount = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).rowcount
+    res = db.execute("SELECT * FROM books WHERE year = :year", {"year": year}).fetchall()
+
+    if rescount == 0:
+        return render_template("error.html", message="Nothing found, try another year")
+    else:
+        return render_template("search_by_year.html", res=res, year=year, username=user.username, username_id=username_id)
+
+@app.route("/books/<string:username_id>")
+def books(username_id):
+    """List of all books"""
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+    books = db.execute("SELECT * FROM books").fetchall()
+    return render_template("books.html", books=books, username=user.username)
+
+@app.route("/books/<int:book_id>/<string:username_id>")
+def book(book_id, username_id):
+    """Details of a particular book"""
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+    #Make sure that we have that book in our database
+    book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
+    if book is None:
+        return render_template("error.html", message="There is no such book")
+
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
+    if res.status_code != 200:
+      raise Exception("ERROR: API request unsuccessful.")
+    data = res.json()
+    rating = data["books"][0]["average_rating"]
+    ratingcount = data["books"][0]["work_ratings_count"]
+    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount, username=user.username)

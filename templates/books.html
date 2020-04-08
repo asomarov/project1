@@ -5,11 +5,16 @@
 {% endblock %}
 
 {% block body %}
+<p>
+  You have signed in as <a href="{{ url_for('username', username_id=username_id) }} ">{{ username }}</a>.
+  <a href="{{ url_for('index') }}">Sign out</a>
+</p>
+
     <p>
       <ol>
         {% for book in books %}
           <li>
-            <a href="{{ url_for('book', book_id=book.id) }}">
+            <a href="{{ url_for('book', book_id=book.id, username_id=username_id) }}">
               '{{book.title}}' by {{book.author}} published in {{book.year}} (ISBN {{book.isbn}})
             </a>
           </li>
@@ -17,5 +22,5 @@
       </ol>
     </p>
 
-    <a href="{{ url_for('index') }}">Go back</a>
+    <a href="{{ url_for('sign_in') }}">Go back</a>
 {% endblock %}

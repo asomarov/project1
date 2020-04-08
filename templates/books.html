@@ -22,5 +22,10 @@
       </ol>
     </p>
 
-    <a href="{{ url_for('sign_in') }}">Go back</a>
+    <button type="button" class="btn btn-primary" onclick="goBack()">Go back</button>
+    <script>
+      function goBack() {
+        window.history.back();
+      }
+    </script>
 {% endblock %}

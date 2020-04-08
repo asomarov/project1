@@ -111,7 +111,7 @@ def register():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
-    username_id = str(random.random())
+    username_id = str(random.random())                              #This will allow to use it as a route to a particular user
 
     u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone()
     if name is "":

@@ -9,13 +9,16 @@
         {{ message }}
     </p>
     <ul>
-      {% for book in books %}
-        {% if book.id == reviews.book_id %}
+      {% for review in reviews %}
           <li>
-            <p>{{ book.title }} by {{ book.author}}:</p>
-            <p>{{ reviews.review }}</p>
+            <p>{{ review.review }}</p>
+            <p>And your rating is {{ review.rate }}</p>
+            <p>
+              {% if review.book_id == books.id %}
+                for {{ books.title }}
+              {% endif %}
+            </p>
           </li>
-        {% endif %}
       {% endfor %}
     </ul>
 {% endblock %}

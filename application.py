@@ -8,6 +8,7 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask import Flask, render_template, request
+from requests.exceptions import ConnectionError
 
 app = Flask(__name__)
 
@@ -82,7 +83,9 @@ def username(username_id):
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
     reviews = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).fetchall()
     revcount = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).rowcount
-    books = db.execute("SELECT * FROM books").fetchall()
+    books = []
+    for review in reviews:
+        books += db.execute("SELECT * FROM books WHERE id = :book_id", {"book_id": review.book_id}).fetchone()
 
     if revcount == 0:
         message = "You haven't made any reviews"
@@ -150,9 +153,14 @@ def book(book_id, username_id):
     if book is None:
         return render_template("error.html", message="There is no such book")
 
-    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
-    if res.status_code != 200:
-      raise Exception("ERROR: API request unsuccessful.")
+    try:
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
+    except ConnectionError as e:
+        message = "No response. Try again later."
+        return render_template("error.html", message = message)
+
+    #if res.status_code != 200:
+    #  raise Exception("ERROR: API request unsuccessful.")
     data = res.json()
     rating = data["books"][0]["average_rating"]
     ratingcount = data["books"][0]["work_ratings_count"]
@@ -163,7 +171,18 @@ def review(book_id, username_id):
     """Review"""
     review = request.form.get("review")
     rating = request.form.get("inlineRadioOptions")
+
+    if rating == "":
+        return render_template("error.html", message="Please submit at least a rating")
+
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+    userreviews = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).fetchall()
+    flag = False
+    for userreview in userreviews:
+        if userreview.book_id == book_id:
+            flag = True
+    if flag == True:
+        return render_template("error.html", message="You have already submitted a review for this book")
 
     db.execute("INSERT INTO reviews (review, book_id, user_id, rate) VALUES(:review, :book_id, :user_id, :rating)",
                                 {"review": review, "book_id": book_id, "user_id": user.id, "rating": rating})

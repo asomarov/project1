@@ -22,7 +22,16 @@
       Average Goodreads rating: {{ rating }}.
     </p>
     <p> Number of ratings received in Goodreads: {{ ratingcount }} </p>
-
+    <p>
+      <ul>
+        {% for review in reviews %}
+          <li>
+            {{ review.review }}
+            Submitted rating: {{ review.rate }}
+          </li>
+        {% endfor %}
+      </ul>
+    </p>
     <form class="" action="{{ url_for('review', book_id=book.id, username_id=username_id) }}" method="post">
       <div class="form-group">
         <label for="review">Write your own review</label>

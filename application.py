@@ -146,6 +146,7 @@ def book(book_id, username_id):
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
     #Make sure that we have that book in our database
     book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
+    reviews = db.execute("SELECT * FROM reviews WHERE book_id = :book_id", {"book_id": book_id}).fetchall()
     if book is None:
         return render_template("error.html", message="There is no such book")
 
@@ -155,7 +156,7 @@ def book(book_id, username_id):
     data = res.json()
     rating = data["books"][0]["average_rating"]
     ratingcount = data["books"][0]["work_ratings_count"]
-    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount, username=user.username, username_id=username_id)
+    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount, username=user.username, username_id=username_id, reviews=reviews)
 
 @app.route("/review/<int:book_id>/<float:username_id>", methods=["POST"])
 def review(book_id, username_id):

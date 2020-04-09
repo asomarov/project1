@@ -172,7 +172,7 @@ def review(book_id, username_id):
     review = request.form.get("review")
     rating = request.form.get("inlineRadioOptions")
 
-    if rating == "":
+    if rating is None:
         return render_template("error.html", message="Please submit at least a rating")
 
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()

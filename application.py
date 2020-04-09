@@ -77,7 +77,7 @@ def sign_in():
     else:
         return render_template("error.html", message="Your username or password is incorrect")
 
-@app.route("/<string:username_id>")
+@app.route("/<float:username_id>")
 def username(username_id):
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
     reviews = db.execute("SELECT * FROM reviews WHERE user_id = :user_id", {"user_id": user.id}).fetchall()
@@ -90,7 +90,7 @@ def username(username_id):
         message = "Your reviews:"
     return render_template("username.html", reviews = reviews, message = message, username = user.name, books = books)
 
-@app.route("/search_results/<string:username_id>", methods=["POST"])
+@app.route("/search_results/<float:username_id>", methods=["POST"])
 def search_results(username_id):
     """Search results"""
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
@@ -118,7 +118,7 @@ def search_results(username_id):
     else:
         return render_template("search_results.html", res=res, username=user.username, username_id=username_id)
 
-@app.route("/search_by_year/<string:username_id>", methods=["POST"])
+@app.route("/search_by_year/<float:username_id>", methods=["POST"])
 def search_by_year(username_id):
     """Search results"""
 
@@ -133,14 +133,14 @@ def search_by_year(username_id):
     else:
         return render_template("search_by_year.html", res=res, year=year, username=user.username, username_id=username_id)
 
-@app.route("/books/<string:username_id>")
+@app.route("/books/<float:username_id>")
 def books(username_id):
     """List of all books"""
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
     books = db.execute("SELECT * FROM books").fetchall()
-    return render_template("books.html", books=books, username=user.username)
+    return render_template("books.html", books=books, username=user.username, username_id=username_id)
 
-@app.route("/books/<int:book_id>/<string:username_id>")
+@app.route("/books/<int:book_id>/<float:username_id>")
 def book(book_id, username_id):
     """Details of a particular book"""
     user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
@@ -155,4 +155,16 @@ def book(book_id, username_id):
     data = res.json()
     rating = data["books"][0]["average_rating"]
     ratingcount = data["books"][0]["work_ratings_count"]
-    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount, username=user.username)
+    return render_template("book.html", book=book, rating=rating, ratingcount=ratingcount, username=user.username, username_id=username_id)
+
+@app.route("/review/<int:book_id>/<float:username_id>", methods=["POST"])
+def review(book_id, username_id):
+    """Review"""
+    review = request.form.get("review")
+    rating = request.form.get("inlineRadioOptions")
+    user = db.execute("SELECT * FROM users WHERE username_id = :username_id", {"username_id": username_id}).fetchone()
+
+    db.execute("INSERT INTO reviews (review, book_id, user_id, rate) VALUES(:review, :book_id, :user_id, :rating)",
+                                {"review": review, "book_id": book_id, "user_id": user.id, "rating": rating})
+    db.commit()
+    return render_template("review_submit.html", message="You have successfully submitted your review and rating")

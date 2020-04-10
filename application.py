@@ -3,14 +3,15 @@ import requests
 import json
 import random
 
-from flask import Flask, session
+from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from flask import Flask, render_template, request
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError                         # To handle ConnectionError with Goodreads.com
+from average_func import cal_average                                    # Import of a function that calculates average of a list
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -44,7 +45,7 @@ def register():
     email = request.form.get("email")
     username = request.form.get("username")
     password = request.form.get("password")
-    username_id = str(random.random())                              #This will allow to use it as a route to a particular user
+    username_id = random.random()                              #This will allow to use it as a route to a particular user
 
     u = db.execute("SELECT username FROM users WHERE username= :username", {"username": username}).fetchone()
     if name == "":
@@ -156,7 +157,7 @@ def book(book_id, username_id):
     try:
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "JJS9Nrl9dVZjEdT4rB8g", "isbns": book.isbn})
     except ConnectionError as e:
-        message = "No response. Try again later."
+        message = "No response from Goodreads.com. Try again later."
         return render_template("error.html", message = message)
 
     #if res.status_code != 200:
@@ -188,3 +189,28 @@ def review(book_id, username_id):
                                 {"review": review, "book_id": book_id, "user_id": user.id, "rating": rating})
     db.commit()
     return render_template("review_submit.html", message="You have successfully submitted your review and rating")
+
+@app.route("/api/<string:isbn>")
+def bookapi(isbn):
+    """Return detais of a book"""
+
+    # Make sure book exists
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    if book is None:
+        return jsonify({"error": "Invalid isbn"}), 404
+
+    # Get all reviews
+    reviews = db.execute("SELECT * FROM reviews WHERE book_id = :book_id", {"book_id": book.id}).fetchall()
+    review_count = db.execute("SELECT * FROM reviews WHERE book_id = :book_id", {"book_id": book.id}).rowcount
+    scores = []
+    for review in reviews:
+        scores.append(review.rate)
+    average_score = cal_average(scores)
+    return jsonify({
+            "title": book.title,
+            "author": book.author,
+            "year": book.year,
+            "isbn": book.isbn,
+            "review_count": review_count,
+            "average_score": average_score
+            })
